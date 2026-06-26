@@ -1,44 +1,60 @@
 <?php
-namespace EWallet\Repository;
+// =============================================
+// DONNÉES GLOBALES
+// =============================================
 
-$GLOBALS['wallets'] = [
+$wallets = [
     0 => ['client' => 'AITA', 'telephone' => '775898985', 'code' => 1234, 'solde' => 0],
     1 => ['client' => 'Fatou', 'telephone' => '782345678', 'code' => 5678, 'solde' => 100000]
 ];
 
-$GLOBALS['transactions'] = [
+$transactions = [
     0 => ['montant' => 1000, 'type' => 'depot', 'frais' => 0, 'indexWallet' => 0],
     1 => ['montant' => 5000, 'type' => 'retrait', 'frais' => 200, 'indexWallet' => 0]
 ];
 
+// =============================================
+// FONCTIONS D'ACCÈS AUX WALLETS
+// =============================================
+
 function trouverWalletParTelephone(string $telephone): int {
-    $result = array_filter($GLOBALS['wallets'], fn($w) => $w['telephone'] === $telephone);
+    global $wallets;
+    $result = array_filter($wallets, fn($w) => $w['telephone'] === $telephone);
     return count($result) > 0 ? array_key_first($result) : -1;
 }
 
 function trouverWalletParCode(int $code): int {
-    $result = array_filter($GLOBALS['wallets'], fn($w) => $w['code'] === $code);
+    global $wallets;
+    $result = array_filter($wallets, fn($w) => $w['code'] === $code);
     return count($result) > 0 ? array_key_first($result) : -1;
 }
 
 function ajouterWallet(array $wallet): void {
-    array_push($GLOBALS['wallets'], $wallet);
+    global $wallets;
+    array_push($wallets, $wallet);
 }
 
 function mettreAJourSolde(int $indexWallet, float $nouveauSolde): void {
-    $GLOBALS['wallets'][$indexWallet]['solde'] = $nouveauSolde;
+    global $wallets;
+    $wallets[$indexWallet]['solde'] = $nouveauSolde;
 }
 
+// =============================================
+// FONCTIONS D'ACCÈS AUX TRANSACTIONS
+// =============================================
+
 function ajouterTransaction(array $transaction): void {
-    array_push($GLOBALS['transactions'], $transaction);
+    global $transactions;
+    array_push($transactions, $transaction);
 }
 
 function listerTransactions(int $indexWallet = -1): array {
+    global $transactions;
     if ($indexWallet === -1) {
-        return $GLOBALS['transactions'];
+        return $transactions;
     }
     return array_values(array_filter(
-        $GLOBALS['transactions'],
+        $transactions,
         fn($t) => $t['indexWallet'] === $indexWallet
     ));
 }
