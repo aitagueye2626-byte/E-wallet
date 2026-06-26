@@ -1,7 +1,18 @@
 <?php
-// =============================================
-// FONCTIONNALITÉ 1 : CRÉER UN WALLET
-// =============================================
+namespace EWallet\Services;
+
+use function EWallet\Repository\trouverWalletParTelephone;
+use function EWallet\Repository\ajouterWallet;
+use function EWallet\Repository\mettreAJourSolde;
+use function EWallet\Repository\ajouterTransaction;
+use function EWallet\Repository\listerTransactions;
+use function EWallet\Validator\validerChampObligatoire;
+use function EWallet\Validator\validerTelephoneUnique;
+use function EWallet\Validator\validerSoldeInitial;
+use function EWallet\Validator\validerCodeUnique;
+use function EWallet\Validator\validerWalletExiste;
+use function EWallet\Validator\validerMontantPositif;
+use function EWallet\Validator\validerSoldeDisponible;
 
 function traiterCreationWallet(array $wallet): array {
     $resultat = ['succes' => false, 'message' => ''];
@@ -32,10 +43,6 @@ function traiterCreationWallet(array $wallet): array {
     return $resultat;
 }
 
-// =============================================
-// FONCTIONNALITÉ 2 : FAIRE UN DÉPÔT
-// =============================================
-
 function traiterDepot(string $telephone, float $montant): array {
     $resultat = ['succes' => false, 'message' => '', 'data' => []];
 
@@ -49,8 +56,7 @@ function traiterDepot(string $telephone, float $montant): array {
         return $resultat;
     }
 
-    global $wallets;
-    $nouveauSolde = $wallets[$indexWallet]['solde'] + $montant;
+    $nouveauSolde = $GLOBALS['wallets'][$indexWallet]['solde'] + $montant;
     mettreAJourSolde($indexWallet, $nouveauSolde);
 
     ajouterTransaction([
@@ -62,26 +68,19 @@ function traiterDepot(string $telephone, float $montant): array {
 
     $resultat['succes'] = true;
     $resultat['data']   = [
-        'client'       => $wallets[$indexWallet]['client'],
+        'client'       => $GLOBALS['wallets'][$indexWallet]['client'],
         'montant'      => $montant,
         'nouveauSolde' => $nouveauSolde
     ];
     return $resultat;
 }
 
-// =============================================
-// FONCTIONNALITÉ 3 : FAIRE UN RETRAIT
-// =============================================
-
 function calculerFrais(float $montant): float {
-    if ($montant <= 10000) {
-        return 200;
-    } else if ($montant <= 100000) {
-        return 500;
-    } else {
-        $frais = $montant * 0.01;
-        return $frais > 5000 ? 5000 : $frais;
-    }
+    return match(true) {
+        $montant <= 10000  => 200,
+        $montant <= 100000 => 500,
+        default            => min($montant * 0.01, 5000)
+    };
 }
 
 function traiterRetrait(string $telephone, float $montant): array {
@@ -104,8 +103,7 @@ function traiterRetrait(string $telephone, float $montant): array {
         return $resultat;
     }
 
-    global $wallets;
-    $nouveauSolde = $wallets[$indexWallet]['solde'] - $montant - $frais;
+    $nouveauSolde = $GLOBALS['wallets'][$indexWallet]['solde'] - $montant - $frais;
     mettreAJourSolde($indexWallet, $nouveauSolde);
 
     ajouterTransaction([
@@ -117,17 +115,13 @@ function traiterRetrait(string $telephone, float $montant): array {
 
     $resultat['succes'] = true;
     $resultat['data']   = [
-        'client'       => $wallets[$indexWallet]['client'],
+        'client'       => $GLOBALS['wallets'][$indexWallet]['client'],
         'montant'      => $montant,
         'frais'        => $frais,
         'nouveauSolde' => $nouveauSolde
     ];
     return $resultat;
 }
-
-// =============================================
-// FONCTIONNALITÉ 4 : LISTER LES TRANSACTIONS
-// =============================================
 
 function traiterListeTransactions(string $choix, string $telephone): array {
     $resultat = ['succes' => false, 'message' => '', 'liste' => []];

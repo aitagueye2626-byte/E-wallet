@@ -1,11 +1,13 @@
 <?php
-// =============================================
-// CONTRÔLEUR PRINCIPAL
-// =============================================
+namespace EWallet\Controller;
+
+use function EWallet\Services\traiterCreationWallet;
+use function EWallet\Services\traiterDepot;
+use function EWallet\Services\traiterRetrait;
+use function EWallet\Services\traiterListeTransactions;
 
 function routerChoix(string $choix): void {
     switch ($choix) {
-
         case '1':
             $client    = readline("Votre nom complet : ");
             $telephone = readline("Votre numéro de téléphone : ");
@@ -33,8 +35,7 @@ function routerChoix(string $choix): void {
         case '2':
             $telephone = readline("Numéro de téléphone du wallet : ");
             $montant   = (float)readline("Montant à déposer : ");
-
-            $resultat = traiterDepot($telephone, $montant);
+            $resultat  = traiterDepot($telephone, $montant);
 
             if (!$resultat['succes']) {
                 echo "\n✗ Erreur : " . $resultat['message'] . "\n";
@@ -49,8 +50,7 @@ function routerChoix(string $choix): void {
         case '3':
             $telephone = readline("Numéro de téléphone du wallet : ");
             $montant   = (float)readline("Montant à retirer : ");
-
-            $resultat = traiterRetrait($telephone, $montant);
+            $resultat  = traiterRetrait($telephone, $montant);
 
             if (!$resultat['succes']) {
                 echo "\n✗ Erreur : " . $resultat['message'] . "\n";
@@ -71,7 +71,6 @@ function routerChoix(string $choix): void {
             if ($choix === '2') {
                 $telephone = readline("Numéro de téléphone du wallet : ");
             }
-
             $resultat = traiterListeTransactions($choix, $telephone);
 
             if (!$resultat['succes']) {
@@ -79,11 +78,10 @@ function routerChoix(string $choix): void {
             } else if (count($resultat['liste']) === 0) {
                 echo "\nAucune transaction trouvée.\n";
             } else {
-                global $wallets;
                 echo "\n--- Historique des Transactions ---\n";
                 for ($i = 0; $i < count($resultat['liste']); $i++) {
                     $t = $resultat['liste'][$i];
-                    $w = $wallets[$t['indexWallet']];
+                    $w = $GLOBALS['wallets'][$t['indexWallet']];
                     echo "\n[" . ($i + 1) . "] Titulaire : " . $w['client'] . "\n";
                     echo "    Type      : " . $t['type'] . "\n";
                     echo "    Montant   : " . $t['montant'] . " CFA\n";

@@ -1,16 +1,15 @@
 <?php
-// =============================================
-// FONCTIONS DE VALIDATION
-// =============================================
+namespace EWallet\Validator;
+
+use function EWallet\Repository\trouverWalletParTelephone;
+use function EWallet\Repository\trouverWalletParCode;
 
 function validerTelephoneUnique(string $telephone): bool {
-    $index = trouverWalletParTelephone($telephone);
-    return $index === -1;
+    return trouverWalletParTelephone($telephone) === -1;
 }
 
 function validerCodeUnique(int $code): bool {
-    $index = trouverWalletParCode($code);
-    return $index === -1;
+    return trouverWalletParCode($code) === -1;
 }
 
 function validerSoldeInitial(float $solde): bool {
@@ -26,8 +25,7 @@ function validerMontantPositif(float $montant): bool {
 }
 
 function validerSoldeDisponible(int $indexWallet, float $montant, float $frais): bool {
-    global $wallets;
-    return $wallets[$indexWallet]['solde'] >= ($montant + $frais);
+    return $GLOBALS['wallets'][$indexWallet]['solde'] >= ($montant + $frais);
 }
 
 function validerWalletExiste(int $index): bool {

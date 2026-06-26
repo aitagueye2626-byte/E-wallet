@@ -1,16 +1,10 @@
 <?php
-// =============================================
-// INCLUSION DES FICHIERS
-// =============================================
-
 require 'repository.php';
 require 'validator.php';
 require 'services.php';
 require 'controller.php';
 
-// =============================================
-// AFFICHAGE DU MENU
-// =============================================
+use function EWallet\Controller\routerChoix;
 
 function afficherMenu(): void {
     echo "\n** Menu Distributeur **\n";
@@ -20,10 +14,6 @@ function afficherMenu(): void {
     echo "4 - Lister les Transactions\n";
     echo "0 - Quitter\n";
 }
-
-// =============================================
-// BOUCLE PRINCIPALE
-// =============================================
 
 do {
     afficherMenu();
