@@ -74,14 +74,11 @@ function traiterDepot(string $telephone, float $montant): array {
 // =============================================
 
 function calculerFrais(float $montant): float {
-    if ($montant <= 10000) {
-        return 200;
-    } else if ($montant <= 100000) {
-        return 500;
-    } else {
-        $frais = $montant * 0.01;
-        return $frais > 5000 ? 5000 : $frais;
-    }
+    return match(true) {
+        $montant <= 10000  => 200,
+        $montant <= 100000 => 500,
+        default            => min($montant * 0.01, 5000)
+    };
 }
 
 function traiterRetrait(string $telephone, float $montant): array {

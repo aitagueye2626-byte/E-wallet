@@ -4,13 +4,11 @@
 // =============================================
 
 function validerTelephoneUnique(string $telephone): bool {
-    $index = trouverWalletParTelephone($telephone);
-    return $index === -1;
+    return trouverWalletParTelephone($telephone) === -1;
 }
 
 function validerCodeUnique(int $code): bool {
-    $index = trouverWalletParCode($code);
-    return $index === -1;
+    return trouverWalletParCode($code) === -1;
 }
 
 function validerSoldeInitial(float $solde): bool {
